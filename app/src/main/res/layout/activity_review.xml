@@ -7,7 +7,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:layout_editor_absoluteY="0dp"
-    tools:layout_editor_absoluteX="0dp">
+    tools:layout_editor_absoluteX="0dp"
+    android:scrollbars="vertical"
+    >
 
     <GridView
         android:id="@+id/gvTrans"
@@ -22,6 +24,7 @@
         android:verticalSpacing="1dp"
         android:background="@color/colorPrimaryDark"
         android:theme="@style/AlertDialog.AppCompat"
+        android:textColor="@color/textPrimaryColor"
         android:clickable="true"
         android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -39,6 +42,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:text="@string/btnClear"
+        android:textColor="@color/textPrimaryColor"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
@@ -49,6 +53,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:text="@string/btnRemove"
+        android:textColor="@color/textPrimaryColor"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnMarkClear" />
 
@@ -60,10 +65,12 @@
         android:layout_marginRight="32dp"
         android:layout_marginTop="16dp"
         android:text="@string/desc3"
+        android:textColor="@color/textPrimaryColor"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintHorizontal_bias="0.406"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.406" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btnMarkUnClear"
@@ -73,6 +80,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:text="@string/btnUnClear"
+        android:textColor="@color/textPrimaryColor"
         app:layout_constraintLeft_toRightOf="@+id/btnMarkClear"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
@@ -85,6 +93,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:text="@string/next"
+        android:textColor="@color/textPrimaryColor"
         app:layout_constraintLeft_toRightOf="@+id/btnDelete"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnMarkUnClear" />

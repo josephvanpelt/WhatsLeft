@@ -67,9 +67,9 @@ public class WhatsLeftActivity extends Fragment {
                         }
                         catch (Exception e) {}
 
-                        msgSum += first + "\n-------------------------------------\n" +
+                        msgSum += first + "\n\n" +
                                 "Transactions to account for:\n" +
-                                "--------------------------------------\n";
+                                "\n";
 
                     }
                 }

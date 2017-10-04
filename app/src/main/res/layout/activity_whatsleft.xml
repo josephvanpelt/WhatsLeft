@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:scrollbars="vertical"
+    >
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -19,6 +21,7 @@
             android:layout_marginRight="32dp"
             android:layout_marginTop="32dp"
             android:text="@string/desc4"
+            android:textColor="@color/textPrimaryColor"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -32,6 +35,7 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="32dp"
             android:text="@string/defaultBalance"
+            android:textColor="@color/textPrimaryColor"
             android:textAppearance="@style/TextAppearance.AppCompat.Display2"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -45,6 +49,7 @@
             android:layout_marginLeft="32dp"
             android:layout_marginRight="32dp"
             android:text="@string/disclaim1"
+            android:textColor="@color/textPrimaryColor"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_bias="0.437"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -58,6 +63,7 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
             android:text="Summary"
+            android:textColor="@color/textPrimaryColor"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             app:layout_constraintHorizontal_bias="0.502"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -66,8 +72,8 @@
 
         <ImageView
             android:id="@+id/imgCoffee"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:layout_marginBottom="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
