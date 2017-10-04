@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorAccentBlend"
+    android:orientation="horizontal"
+    tools:layout_editor_absoluteX="8dp"
+    tools:layout_editor_absoluteY="33dp"
+    android:horizontalSpacing="1dp"
+    android:verticalSpacing="1dp"
+    android:textColor="@color/textPrimaryColor"
+    android:descendantFocusability="blocksDescendants"
+    >
+    <!-- android:background="@drawable/selector_grid_view" -->
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="0dp"
+        android:layout_weight="0.5"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:focusable="true"
+        android:layout_margin="1dp"
+        android:padding="8dp"
+        android:text="Name"
+        android:textColor="@color/textPrimaryColor"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!-- android:clickable="false" -->
+
+    <TextView
+        android:id="@+id/tv_value"
+        android:layout_width="0dp"
+        android:layout_weight="0.25"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:layout_margin="1dp"
+        android:padding="8dp"
+        android:text="Value"
+        android:textColor="@color/textPrimaryColor"
+        android:focusable="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        app:layout_constraintLeft_toRightOf="@+id/tv_name"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <CheckBox
+        android:id="@+id/tv_hascleared"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="1dp"
+        android:layout_weight="0.25"
+        android:background="@color/colorPrimary"
+        android:padding="1dp"
+        android:text="Clear"
+        android:textColor="@color/textPrimaryColor"
+        android:clickable="false"
+        android:focusable="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        app:layout_constraintLeft_toRightOf="@+id/tv_value"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</LinearLayout>
