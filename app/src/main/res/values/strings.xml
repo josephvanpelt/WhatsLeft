@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">WhatsLeft</string>
+    <string name="title_1">Input Balance</string>
+    <string name="title_2">Add Transactions</string>
+    <string name="title_3">Review Transactions</string>
+    <string name="title_4">WhatsLeft</string>
+
+    <string name="disclaim1">Privacy: none of these values are sent anywhere - they are only
+        stored locally on your device in a secured database.</string>
+
+    <string name="desc1">Input the current balance from your bank:</string>
+    <string name="defaultBalance">0.0</string>
+
+    <string name="next">Next Step</string>
+
+    <string name="desc2">Enter all your transactions for the month and indicate which transactions
+        have already cleared. In the next step you can review all of them and change which
+        transactions have cleared. This process can be completed once in most cases since the
+        transactions will be saved (only on the device).</string>
+    <string name="name1">Name for the transaction:</string>
+    <string name="value1">Value for the  transaction:</string>
+    <string name="cleared1">This transaction has cleared</string>
+    <string name="btnAdd">Add this transaction</string>
+    <string name="end1">Once you have completed entering all your transactions click Next Step.</string>
+
+    <string name="desc3">Make sure that all transactions that have cleared are indicated below.
+        To add transactions go back to the previous step</string>
+
+    <string name="btnRemove">Delete</string>
+    <string name="btnClear">Mark Cleared</string>
+    <string name="btnUnClear">Mark Uncleared</string>
+
+    <string name="desc4">Below is the calculated balance based on the transactions that have not
+        cleared yet.</string>
+</resources>

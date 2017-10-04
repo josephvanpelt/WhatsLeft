@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_1"
+        android:icon="@drawable/ic_input_balance"
+        android:title="@string/title_1" />
+
+    <item
+        android:id="@+id/navigation_2"
+        android:icon="@drawable/ic_edit_trans"
+        android:title="@string/title_2" />
+
+    <item
+        android:id="@+id/navigation_3"
+        android:icon="@drawable/ic_review_trans"
+        android:title="@string/title_3" />
+
+    <item
+        android:id="@+id/navigation_4"
+        android:icon="@drawable/ic_calculated"
+        android:title="@string/title_4" />
+</menu>
