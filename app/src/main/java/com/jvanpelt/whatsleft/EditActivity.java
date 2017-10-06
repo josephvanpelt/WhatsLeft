@@ -9,7 +9,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -64,6 +66,56 @@ public class EditActivity extends Fragment {
                     final FragmentTransaction ft = getFragmentManager().beginTransaction();
                     ft.replace(R.id.frame_fragmentholder, activity3, "");
                     ft.commit();
+                }
+            });
+
+            // add gesture support
+            final GestureDetector gesture = new GestureDetector(getActivity(),
+                    new GestureDetector.SimpleOnGestureListener() {
+
+                        @Override
+                        public boolean onDown(MotionEvent e) {
+                            return true;
+                        }
+
+                        @Override
+                        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+                                               float velocityY) {
+                            Log.i(TAG, "onFling has been called!");
+                            final int SWIPE_MIN_DISTANCE = 120;
+                            final int SWIPE_MAX_OFF_PATH = 250;
+                            final int SWIPE_THRESHOLD_VELOCITY = 200;
+                            try {
+                                if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+                                    return false;
+                                if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE
+                                        && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                                    Log.i(TAG, "Right to Left");
+                                    // go to the next view
+                                    ReviewActivity activity3 = new ReviewActivity();
+                                    final FragmentTransaction ft = getFragmentManager().beginTransaction();
+                                    ft.replace(R.id.frame_fragmentholder, activity3, "");
+                                    ft.commit();
+                                } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
+                                        && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                                    Log.i(TAG, "Left to Right");
+                                    // go to the previous view
+                                    InputActivity activity1 = new InputActivity();
+                                    final FragmentTransaction ft = getFragmentManager().beginTransaction();
+                                    ft.replace(R.id.frame_fragmentholder, activity1, "");
+                                    ft.commit();
+                                }
+                            } catch (Exception e) {
+                                // nothing
+                            }
+                            return super.onFling(e1, e2, velocityX, velocityY);
+                        }
+                    });
+
+            view.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return gesture.onTouchEvent(event);
                 }
             });
 
