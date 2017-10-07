@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,6 +35,7 @@ public class WhatsLeftActivity extends Fragment {
     private View view;
     private TextView summary;
     private ImageView img;
+    private MainActivity main;
 
     ArrayList<ModelTrans> transList = new ArrayList<>();
 
@@ -43,14 +45,27 @@ public class WhatsLeftActivity extends Fragment {
         view = inflater.inflate(R.layout.activity_whatsleft, container, false);
         Log.v(TAG, "loading ");
         try {
+            main = (MainActivity) this.getActivity();
             dbHelper = new TransactionDbHelper(this.getContext());
 
             calc = (TextView) view.findViewById(R.id.txtCalculated);
             summary = (TextView) view.findViewById(R.id.txtSummary);
             img = (ImageView) view.findViewById(R.id.imgCoffee);
 
-            String msgSum = "Initial Balance: $";
+            Button prev = (Button) view.findViewById(R.id.btnPrev);
+            // tie the buttons to functions
+            prev.setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v) {
+                    // go to the next view
+                    ReviewActivity activity = new ReviewActivity();
+                    final FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    ft.replace(R.id.frame_fragmentholder, activity, "");
+                    ft.commit();
+                    main.UpdateView(3);
+                }
+            });
 
+            String msgSum = "Initial Balance: $";
 
             // read in the values from the database
             float first = 0;
@@ -141,6 +156,7 @@ public class WhatsLeftActivity extends Fragment {
                                     final FragmentTransaction ft = getFragmentManager().beginTransaction();
                                     ft.replace(R.id.frame_fragmentholder, activity1, "");
                                     ft.commit();
+                                    main.UpdateView(3);
                                 }
                             } catch (Exception e) {
                                 // nothing

@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.internal.BottomNavigationMenu;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
@@ -48,6 +50,7 @@ public class ReviewActivity extends Fragment {
     private View gview;
     ArrayList<ModelTrans> transList = new ArrayList<>();
     private int gPosition = 0;
+    private MainActivity main;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -55,6 +58,9 @@ public class ReviewActivity extends Fragment {
         gview = inflater.inflate(R.layout.activity_review, container, false);
 
         try {
+            main = (MainActivity) this.getActivity();
+            //Toast.makeText(gview.getContext(), "position: " + main.currentView, Toast.LENGTH_LONG).show();
+
             dbHelper = new TransactionDbHelper(this.getContext());
 
             delete = (Button) gview.findViewById(R.id.btnDelete);
@@ -62,6 +68,26 @@ public class ReviewActivity extends Fragment {
             mark_un = (Button) gview.findViewById(R.id.btnMarkUnClear);
             gv = (GridView) gview.findViewById(R.id.gvTrans);
             next = (Button) gview.findViewById(R.id.btnNextReview);
+
+            Button prev = (Button) gview.findViewById(R.id.btnPrev);
+            // tie the buttons to functions
+            prev.setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v) {
+                    // go to the next view
+                    EditActivity activity = new EditActivity();
+                    final FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    ft.replace(R.id.frame_fragmentholder, activity, "");
+                    ft.commit();
+                    main.UpdateView(2);
+                }
+            });
+
+            Button help = (Button) gview.findViewById(R.id.btnHelp);
+            help.setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v) {
+                    main.displayTut(3);
+                }
+            });
 
             transList = dbHelper.getAllTrans(this.getContext());
             adapter = new AdapterTrans(this.getContext(), transList);
@@ -136,11 +162,19 @@ public class ReviewActivity extends Fragment {
             // tie the buttons to functions
             next.setOnClickListener(new View.OnClickListener(){
                 public void onClick(View v) {
-                    // go to the next view
-                    WhatsLeftActivity activity4 = new WhatsLeftActivity();
-                    final FragmentTransaction ft = getFragmentManager().beginTransaction();
-                    ft.replace(R.id.frame_fragmentholder, activity4, "");
-                    ft.commit();
+                    try {
+
+                        // go to the next view
+                        WhatsLeftActivity activity4 = new WhatsLeftActivity();
+                        final FragmentTransaction ft = getFragmentManager().beginTransaction();
+                        ft.replace(R.id.frame_fragmentholder, activity4, "");
+                        ft.commit();
+
+                        main.UpdateView(4);
+                    }
+                    catch (Exception e) {
+                        Log.e(TAG, "Error", e);
+                    }
                 }
             });
 
@@ -171,6 +205,7 @@ public class ReviewActivity extends Fragment {
                                     final FragmentTransaction ft = getFragmentManager().beginTransaction();
                                     ft.replace(R.id.frame_fragmentholder, activity3, "");
                                     ft.commit();
+                                    main.UpdateView(4);
                                 } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
                                         && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
                                     Log.i(TAG, "Left to Right");
@@ -179,6 +214,7 @@ public class ReviewActivity extends Fragment {
                                     final FragmentTransaction ft = getFragmentManager().beginTransaction();
                                     ft.replace(R.id.frame_fragmentholder, activity1, "");
                                     ft.commit();
+                                    main.UpdateView(2);
                                 }
                             } catch (Exception e) {
                                 // nothing
@@ -193,6 +229,8 @@ public class ReviewActivity extends Fragment {
                     return gesture.onTouchEvent(event);
                 }
             });
+
+
         }
         catch (Exception e) {
             Log.e(TAG, "Error", e);
@@ -201,82 +239,4 @@ public class ReviewActivity extends Fragment {
         return gview;
     }
 
-
-
-    /*
-    public void SaveToDB(String title, long hasCleared, String reOccurance,
-                         String startDate)
-    {
-        // Gets the data repository in write mode
-        SQLiteDatabase db = TransactionDbHelper.getWritableDatabase();
-
-        // Create a new map of values, where column names are the keys
-        ContentValues values = new ContentValues();
-        values.put(TransactionsContract.TransactionEntry.COLUMN_NAME, title);
-        values.put(TransactionsContract.TransactionEntry.HAS_CLEARED, hasCleared);
-        values.put(TransactionsContract.TransactionEntry.REOCCURANCE, reOccurance);
-
-        try {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime((new SimpleDateFormat("dd/MM/yyyy")).parse(
-                    binding.foundedEditText.getText().toString()));
-            long date = calendar.getTimeInMillis();
-            values.put(TransactionsContract.TransactionEntry.START_DATE, date);
-        }
-        catch (Exception e) {
-            Log.e(TAG, "Error", e);
-            Toast.makeText(this, "Date is in the wrong format", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        // Insert the new row, returning the primary key value of the new row
-        long newRowId = db.insert(TransactionsContract.TransactionEntry.TABLE_NAME,
-                null, values);
-
-        Toast.makeText(this, "The new Row Id is " + newRowId, Toast.LENGTH_LONG).show();
-    }
-
-    private void readFromDB() {
-        String name = binding.nameEditText.getText().toString();
-        String desc = binding.descEditText.getText().toString();
-        long date = 0;
-
-        try {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime((new SimpleDateFormat("dd/MM/yyyy")).parse(
-                    binding.foundedEditText.getText().toString()));
-            date = calendar.getTimeInMillis();
-        }
-        catch (Exception e) {}
-
-        SQLiteDatabase database = new TransactionDbHelper(this).getReadableDatabase();
-
-        String[] projection = {
-                TransactionsContract.TransactionEntry._ID,
-                TransactionsContract.TransactionEntry.COLUMN_NAME,
-                TransactionsContract.TransactionEntry.HAS_CLEARED,
-                TransactionsContract.TransactionEntry.REOCCURANCE,
-                TransactionsContract.TransactionEntry.START_DATE
-        };
-
-        String selection =
-                TransactionsContract.TransactionEntry.COLUMN_NAME + " like ? and " +
-                        TransactionsContract.TransactionEntry.START_DATE + " > ?";
-
-        String[] selectionArgs = {"%" + name + "%", date + "", "%" + desc + "%"};
-
-        Cursor cursor = database.query(
-                TransactionsContract.TransactionEntry.TABLE_NAME,     // The table to query
-                projection,                               // The columns to return
-                selection,                                // The columns for the WHERE clause
-                selectionArgs,                            // The values for the WHERE clause
-                null,                                     // don't group the rows
-                null,                                     // don't filter by row groups
-                null                                      // don't sort
-        );
-
-        Log.d(TAG, "The total cursor count is " + cursor.getCount());
-        binding.recycleView.setAdapter(new SampleRecyclerViewCursorAdapter(this, cursor));
-    }
-    */
 }

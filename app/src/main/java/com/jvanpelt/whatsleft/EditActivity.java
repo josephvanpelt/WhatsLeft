@@ -35,6 +35,7 @@ public class EditActivity extends Fragment {
     private String gName = "";
     private String gValue = "";
     private long gCleared = 0;
+    private MainActivity main;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,6 +44,7 @@ public class EditActivity extends Fragment {
         view = inflater.inflate(R.layout.activity_edit, container, false);
 
         try {
+            main = (MainActivity) this.getActivity();
             dbHelper = new TransactionDbHelper(this.getContext());
 
             name = (TextView) view.findViewById(R.id.edtTransName);
@@ -50,6 +52,26 @@ public class EditActivity extends Fragment {
             clear = (CheckBox) view.findViewById(R.id.chkTransClear);
             add = (Button) view.findViewById(R.id.btnAddTrans);
             next = (Button) view.findViewById(R.id.btnNextEdit);
+
+            Button prev = (Button) view.findViewById(R.id.btnPrev);
+            // tie the buttons to functions
+            prev.setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v) {
+                    // go to the next view
+                    InputActivity activity = new InputActivity();
+                    final FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    ft.replace(R.id.frame_fragmentholder, activity, "");
+                    ft.commit();
+                    main.UpdateView(1);
+                }
+            });
+
+            Button help = (Button) view.findViewById(R.id.btnHelp);
+            help.setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v) {
+                    main.displayTut(2);
+                }
+            });
 
             // tie the buttons to functions
             add.setOnClickListener(new View.OnClickListener(){
@@ -62,10 +84,11 @@ public class EditActivity extends Fragment {
             next.setOnClickListener(new View.OnClickListener(){
                 public void onClick(View v) {
                     // go to the next view
-                    ReviewActivity activity3 = new ReviewActivity();
+                    ReviewActivity activity = new ReviewActivity();
                     final FragmentTransaction ft = getFragmentManager().beginTransaction();
-                    ft.replace(R.id.frame_fragmentholder, activity3, "");
+                    ft.replace(R.id.frame_fragmentholder, activity, "");
                     ft.commit();
+                    main.UpdateView(3);
                 }
             });
 
@@ -96,6 +119,7 @@ public class EditActivity extends Fragment {
                                     final FragmentTransaction ft = getFragmentManager().beginTransaction();
                                     ft.replace(R.id.frame_fragmentholder, activity3, "");
                                     ft.commit();
+                                    main.UpdateView(3);
                                 } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
                                         && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
                                     Log.i(TAG, "Left to Right");
@@ -104,6 +128,7 @@ public class EditActivity extends Fragment {
                                     final FragmentTransaction ft = getFragmentManager().beginTransaction();
                                     ft.replace(R.id.frame_fragmentholder, activity1, "");
                                     ft.commit();
+                                    main.UpdateView(1);
                                 }
                             } catch (Exception e) {
                                 // nothing

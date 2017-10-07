@@ -6,10 +6,13 @@
     <string name="title_4">WhatsLeft</string>
 
     <string name="disclaim1">Privacy: none of these values are sent anywhere - they are only
-        stored locally on your device in a secured database.</string>
+        stored locally on your device in a sand-boxed database.</string>
 
     <string name="desc1">Input the current balance from your bank:</string>
+    <string name="descext1">Step one is to add the latest current balance
+     from your bank account.  Then click > or swipe to continue.</string>
     <string name="defaultBalance">0.0</string>
+    <string name="hint1">Enter Bank Balance</string>
 
     <string name="next">Next Step</string>
 
@@ -21,10 +24,10 @@
     <string name="value1">Value for the  transaction:</string>
     <string name="cleared1">This transaction has cleared</string>
     <string name="btnAdd">Add this transaction</string>
-    <string name="end1">Once you have completed entering all your transactions click Next Step.</string>
+    <string name="end1">Once you have completed entering all your transactions click the next icon (>).</string>
 
-    <string name="desc3">Make sure that all transactions that have cleared are indicated below.
-        To add transactions go back to the previous step</string>
+    <string name="desc3">Make sure that all transactions that have cleared are checked.
+        To add transactions go back to the previous step. </string>
 
     <string name="btnRemove">Delete</string>
     <string name="btnClear">Mark Cleared</string>
@@ -32,4 +35,9 @@
 
     <string name="desc4">Below is the calculated balance based on the transactions that have not
         cleared yet.</string>
+
+    <string name="summary">Summary</string>
+    <string name="imageDesc">A coffee cup</string>
+    <string name="hintName">Enter Transaction Name</string>
+    <string name="hintValue">Enter Value (- for negative)</string>
 </resources>

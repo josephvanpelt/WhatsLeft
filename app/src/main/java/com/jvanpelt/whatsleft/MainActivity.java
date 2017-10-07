@@ -1,18 +1,67 @@
 package com.jvanpelt.whatsleft;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements TutorialInputFragment.OnTutorialInteractionListener{
 
     private final static String TAG = "MainActivity";
     private InputActivity activity1 = new InputActivity();
     private EditActivity activity2 = new EditActivity();
     private ReviewActivity activity3 = new ReviewActivity();
     private WhatsLeftActivity activity4 = new WhatsLeftActivity();
+    public int currentView = 1;
+    private static final String KEY_NAV = "navigationVal";
+    SharedPreferences prefs = null;
+    public TutorialInputFragment tut;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        prefs = getSharedPreferences("com.jvanpelt.whatsleft", MODE_PRIVATE);
+
+        tut = new TutorialInputFragment();
+
+        //mTextMessage = (TextView) findViewById(R.id.message);
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        // check to see if the Activity was restarted when rotating, for instance
+        if (savedInstanceState != null) {
+            // see if a certain view state was saved when rotating
+            int whichView = savedInstanceState.getInt(KEY_NAV);
+            switchFragment(whichView);
+        }
+        else {
+            switchFragment(1);
+        }
+    }
+
+    // save the current view on rotation
+    @Override
+    protected void onSaveInstanceState (Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_NAV, currentView);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (prefs.getBoolean("firstrun", true)) {
+            // Do first run stuff here then set 'firstrun' as false
+            TransactionDbHelper dbHelper = new TransactionDbHelper(this);
+            dbHelper.UpdateTutorial(this, true); // enable the tutorial
+            prefs.edit().putBoolean("firstrun", false).commit();
+        }
+    }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -43,19 +92,32 @@ public class MainActivity extends AppCompatActivity {
 
     };
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public void UpdateView(int num) {
+        currentView = num;
+        BottomNavigationView bv = (BottomNavigationView) findViewById(R.id.navigation);
 
-        //mTextMessage = (TextView) findViewById(R.id.message);
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
-        switchFragment(1);
+        //onNavigationItemSelected(bv.getMenu().getItem(0));
+        switch (num) {
+            case 1:
+                switchFragment(1);
+                bv.setSelectedItemId(bv.getMenu().getItem(0).getItemId());
+                return;
+            case 2:
+                switchFragment(2);
+                bv.setSelectedItemId(bv.getMenu().getItem(1).getItemId());
+                return;
+            case 3:
+                switchFragment(3);
+                bv.setSelectedItemId(bv.getMenu().getItem(2).getItemId());
+                return;
+            case 4:
+                switchFragment(4);
+                bv.setSelectedItemId(bv.getMenu().getItem(3).getItemId());
+        }
     }
 
     private void switchFragment(int pos) {
+        currentView = pos;
         if (pos == 1) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -85,81 +147,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*
-    public void SaveToDB(String title, long hasCleared, String reOccurance,
-                         String startDate)
-    {
-        // Gets the data repository in write mode
-        SQLiteDatabase db = TransactionDbHelper.getWritableDatabase();
-
-        // Create a new map of values, where column names are the keys
-        ContentValues values = new ContentValues();
-        values.put(TransactionsContract.TransactionEntry.COLUMN_NAME, title);
-        values.put(TransactionsContract.TransactionEntry.HAS_CLEARED, hasCleared);
-        values.put(TransactionsContract.TransactionEntry.REOCCURANCE, reOccurance);
-
-        try {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime((new SimpleDateFormat("dd/MM/yyyy")).parse(
-                    binding.foundedEditText.getText().toString()));
-            long date = calendar.getTimeInMillis();
-            values.put(TransactionsContract.TransactionEntry.START_DATE, date);
-        }
-        catch (Exception e) {
-            Log.e(TAG, "Error", e);
-            Toast.makeText(this, "Date is in the wrong format", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        // Insert the new row, returning the primary key value of the new row
-        long newRowId = db.insert(TransactionsContract.TransactionEntry.TABLE_NAME,
-                null, values);
-
-        Toast.makeText(this, "The new Row Id is " + newRowId, Toast.LENGTH_LONG).show();
+    public void onTutorialInteraction(){
+        getSupportFragmentManager()
+                .beginTransaction()
+                .remove(tut)
+                .commit();
     }
 
-    private void readFromDB() {
-        String name = binding.nameEditText.getText().toString();
-        String desc = binding.descEditText.getText().toString();
-        long date = 0;
-
-        try {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime((new SimpleDateFormat("dd/MM/yyyy")).parse(
-                    binding.foundedEditText.getText().toString()));
-            date = calendar.getTimeInMillis();
-        }
-        catch (Exception e) {}
-
-        SQLiteDatabase database = new TransactionDbHelper(this).getReadableDatabase();
-
-        String[] projection = {
-                TransactionsContract.TransactionEntry._ID,
-                TransactionsContract.TransactionEntry.COLUMN_NAME,
-                TransactionsContract.TransactionEntry.HAS_CLEARED,
-                TransactionsContract.TransactionEntry.REOCCURANCE,
-                TransactionsContract.TransactionEntry.START_DATE
-        };
-
-        String selection =
-                TransactionsContract.TransactionEntry.COLUMN_NAME + " like ? and " +
-                        TransactionsContract.TransactionEntry.START_DATE + " > ?";
-
-        String[] selectionArgs = {"%" + name + "%", date + "", "%" + desc + "%"};
-
-        Cursor cursor = database.query(
-                TransactionsContract.TransactionEntry.TABLE_NAME,     // The table to query
-                projection,                               // The columns to return
-                selection,                                // The columns for the WHERE clause
-                selectionArgs,                            // The values for the WHERE clause
-                null,                                     // don't group the rows
-                null,                                     // don't filter by row groups
-                null                                      // don't sort
-        );
-
-        Log.d(TAG, "The total cursor count is " + cursor.getCount());
-        binding.recycleView.setAdapter(new SampleRecyclerViewCursorAdapter(this, cursor));
+    public void displayTut(int num){
+        tut = new TutorialInputFragment().newInstance(num);
+        tut.ViewNum = num;
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.frame_fragmentholder, tut, "tut")
+                .commit();
     }
-    */
 
 }

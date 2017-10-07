@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
@@ -30,6 +32,7 @@ public class InputActivity extends Fragment {
     private Button next;
     private TextView prev;
     private View view;
+    private MainActivity main;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -37,11 +40,19 @@ public class InputActivity extends Fragment {
         view = inflater.inflate(R.layout.activity_input, container, false);
 
         try {
+            main = (MainActivity) this.getActivity();
             dbHelper = new TransactionDbHelper(this.getContext());
 
             bank = (TextView) view.findViewById(R.id.edtCurrentBank);
             next = (Button) view.findViewById(R.id.btnNextInput);
             prev = (TextView) view.findViewById(R.id.txtLastValue);
+
+            Button help = (Button) view.findViewById(R.id.btnHelp);
+            help.setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v) {
+                    main.displayTut(1);
+                }
+            });
 
             // grab the value any time it is changed
             bank.addTextChangedListener( new TextWatcher(){
@@ -52,15 +63,21 @@ public class InputActivity extends Fragment {
                                            int start,
                                            int before,
                                            int count) {
-                    // get the string value
-                    String val = bank.getText().toString();
-                    // ignore blank string
-                    if (val.equals("")) return;
-                    // save the balance
-                    SaveBankBalanceToDB(view.getContext(), val);
-                    // update the summary on screen
-                    updateBalance();
-                    Log.i(TAG, "Balance change");
+                    try {
+                        // get the string value
+                        String val = bank.getText().toString();
+                        // ignore blank string
+                        if (val.equals("")) return;
+                        // save the balance
+                        dbHelper.UpdateBank(view.getContext(), val);
+                        // update the summary on screen
+                        updateBalance();
+                        Log.i(TAG, "Balance change");
+                    }
+                    catch (Exception e) {
+                        Toast.makeText(view.getContext(), "Error: " + e,
+                                Toast.LENGTH_LONG).show();
+                    }
                 }
 
                 @Override public void afterTextChanged(Editable editable) {}
@@ -74,6 +91,7 @@ public class InputActivity extends Fragment {
                     final FragmentTransaction ft = getFragmentManager().beginTransaction();
                     ft.replace(R.id.frame_fragmentholder, activity2, "");
                     ft.commit();
+                    main.UpdateView(2);
                 }
             });
 
@@ -106,6 +124,7 @@ public class InputActivity extends Fragment {
                                     final FragmentTransaction ft = getFragmentManager().beginTransaction();
                                     ft.replace(R.id.frame_fragmentholder, activity2, "");
                                     ft.commit();
+                                    main.UpdateView(2);
                                 } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
                                         && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
                                     Log.i(TAG, "Left to Right");
@@ -124,19 +143,24 @@ public class InputActivity extends Fragment {
                 }
             });
 
+            /*
+            // no tutorial - make the help button easily visible
+            boolean showTut = dbHelper.GetTutorialEnabled(view.getContext());
+            Toast.makeText(view.getContext(), "show Tut :" + showTut, Toast.LENGTH_LONG).show();
+            if (showTut) {
+                //Toast.makeText(view.getContext(), "show Tut :" + showTut, Toast.LENGTH_LONG).show();
+                main.displayTut(1);
+            }
+            */
+
         }
         catch (Exception e) {
             Log.e(TAG, "Error", e);
+            Toast.makeText(this.getContext(), "Error: " + e,
+                    Toast.LENGTH_LONG).show();
         }
 
-
-
         return view;
-    }
-
-    public void SaveBankBalanceToDB(Context context, String balance)
-    {
-        dbHelper.UpdateBank(context, balance);
     }
 
     public void updateBalance()

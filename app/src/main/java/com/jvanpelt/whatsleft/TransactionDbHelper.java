@@ -98,13 +98,62 @@ public class TransactionDbHelper extends SQLiteOpenHelper {
         database.close();
     }
 
+    public void UpdateTutorial(Context context, boolean Enable)
+    {
+        // Gets the data repository in write mode
+        SQLiteDatabase db = new TransactionDbHelper(context).getWritableDatabase();
+
+        // remove all previous entries
+        String query = "DELETE FROM " + TransactionsContract.Current.TABLE_NAME +
+                " WHERE _id=2";
+        db.execSQL(query);
+
+        // now add the new value in
+        String val = Boolean.toString(Enable);
+        ContentValues values = new ContentValues();
+        values.put(TransactionsContract.Current._ID, 1);
+        values.put(TransactionsContract.Current.COLUMN_VALUE, val);
+        db.replace(TransactionsContract.Current.TABLE_NAME,
+                null, values);
+        db.close();
+    }
+
+    public boolean GetTutorialEnabled(Context context)
+    {
+        // read in the values from the database
+        boolean first = true;
+        try {
+            SQLiteDatabase database = new TransactionDbHelper(context).getReadableDatabase();
+            String query = "SELECT * FROM " + TransactionsContract.Current.TABLE_NAME + " WHERE " +
+                    "_id=2";
+            Cursor c = database.rawQuery(query, null);
+            if (c != null) {
+                while (c.moveToNext()) {
+                    String val = c.getString(c.getColumnIndex(
+                            TransactionsContract.Current.COLUMN_VALUE));
+                    if (val != "") {
+                        //Log.v("DBHelper: ", "val: " + val);
+                        try {
+                            first = Boolean.parseBoolean(val);
+                        } catch (Exception e) {
+                        }
+                    }
+                }
+            }
+            database.close();
+        }
+        catch (Exception e) { Log.v(TAG, e.toString());}
+        return first;
+    }
+
     public void UpdateBank(Context context, String balance)
     {
         // Gets the data repository in write mode
         SQLiteDatabase db = new TransactionDbHelper(context).getWritableDatabase();
 
         // remove all previous entries
-        String query = "DELETE FROM " + TransactionsContract.Current.TABLE_NAME;
+        String query = "DELETE FROM " + TransactionsContract.Current.TABLE_NAME +
+                " WHERE _id=1";
         db.execSQL(query);
 
         // now add the new value in

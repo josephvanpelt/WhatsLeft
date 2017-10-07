@@ -3,21 +3,21 @@
 
     <item
         android:id="@+id/navigation_1"
-        android:icon="@drawable/ic_input_balance"
+        android:icon="@drawable/ic_laptop_chromebook_black_24dp"
         android:title="@string/title_1" />
 
     <item
         android:id="@+id/navigation_2"
-        android:icon="@drawable/ic_edit_trans"
+        android:icon="@drawable/ic_format_list_bulleted_black_24dp"
         android:title="@string/title_2" />
 
     <item
         android:id="@+id/navigation_3"
-        android:icon="@drawable/ic_review_trans"
+        android:icon="@drawable/ic_playlist_add_check_black_24dp"
         android:title="@string/title_3" />
 
     <item
         android:id="@+id/navigation_4"
-        android:icon="@drawable/ic_calculated"
+        android:icon="@drawable/ic_assignment_turned_in_black_24dp"
         android:title="@string/title_4" />
 </menu>
