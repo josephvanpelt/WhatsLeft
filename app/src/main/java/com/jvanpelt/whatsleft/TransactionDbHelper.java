@@ -37,85 +37,101 @@ public class TransactionDbHelper extends SQLiteOpenHelper {
     }
 
     public ArrayList<ModelTrans> getAllTrans(Context context) {
-        String query = "SELECT * FROM " + TransactionsContract.TransactionEntry.TABLE_NAME;
-        ArrayList<ModelTrans> transactions = new ArrayList<>();
-        SQLiteDatabase database = new TransactionDbHelper(context).getReadableDatabase();
-        Cursor c = database.rawQuery(query, null);
-        if (c != null) {
-            while (c.moveToNext()) {
-                String name = c.getString(c.getColumnIndex(
-                        TransactionsContract.TransactionEntry.COLUMN_NAME));
+        try {
+            String query = "SELECT * FROM " + TransactionsContract.TransactionEntry.TABLE_NAME;
+            ArrayList<ModelTrans> transactions = new ArrayList<>();
+            SQLiteDatabase database = new TransactionDbHelper(context).getReadableDatabase();
+            Cursor c = database.rawQuery(query, null);
+            if (c != null) {
+                while (c.moveToNext()) {
+                    String name = c.getString(c.getColumnIndex(
+                            TransactionsContract.TransactionEntry.COLUMN_NAME));
 
-                String value = c.getString(c.getColumnIndex(
-                        TransactionsContract.TransactionEntry.VALUE));
+                    String value = c.getString(c.getColumnIndex(
+                            TransactionsContract.TransactionEntry.VALUE));
 
-                String has_cleared = c.getString(c.getColumnIndex(
-                        TransactionsContract.TransactionEntry.HAS_CLEARED));
+                    String has_cleared = c.getString(c.getColumnIndex(
+                            TransactionsContract.TransactionEntry.HAS_CLEARED));
 
-                ModelTrans t = new ModelTrans();
-                t.setName(name);
-                t.setValue(Float.parseFloat(value));
-                int clr = Integer.parseInt(has_cleared);
-                if (clr > 0)
-                    t.setCleared(true);
-                else
-                    t.setCleared(false);
+                    ModelTrans t = new ModelTrans();
+                    t.setName(name);
+                    t.setValue(Float.parseFloat(value));
+                    int clr = Integer.parseInt(has_cleared);
+                    if (clr > 0)
+                        t.setCleared(true);
+                    else
+                        t.setCleared(false);
 
-                //Log.v("DBHelper: ", "Name: " + name);
-                //Log.v("DBHelper: ", "Value: " + value);
-                //Log.v("DBHelper: ", "HasCleared: " + has_cleared);
+                    //Log.v("DBHelper: ", "Name: " + name);
+                    //Log.v("DBHelper: ", "Value: " + value);
+                    //Log.v("DBHelper: ", "HasCleared: " + has_cleared);
 
-                transactions.add(t);
+                    transactions.add(t);
+                }
             }
+            //database.close();
+            return transactions;
         }
-        database.close();
-        return transactions;
+        catch (Exception e) {
+            Log.e(TAG, e.toString());
+            return null;
+        }
     }
 
     public void DeleteTransaction(Context context, int pos)
     {
-        SQLiteDatabase database = new TransactionDbHelper(context).getWritableDatabase();
-        String idholder = "";
+        try {
+            SQLiteDatabase database = new TransactionDbHelper(context).getWritableDatabase();
+            String idholder = "";
 
-        // get the ID number
-        int cnt = 0;
-        String query = "SELECT * FROM " + TransactionsContract.TransactionEntry.TABLE_NAME;
-        Cursor c = database.rawQuery(query, null);
-        if (c != null) {
-            while (c.moveToNext()) {
-                if (cnt == pos) {
-                    idholder = c.getString(c.getColumnIndex(
-                            TransactionsContract.TransactionEntry._ID));
+            // get the ID number
+            int cnt = 0;
+            String query = "SELECT * FROM " + TransactionsContract.TransactionEntry.TABLE_NAME;
+            Cursor c = database.rawQuery(query, null);
+            if (c != null) {
+                while (c.moveToNext()) {
+                    if (cnt == pos) {
+                        idholder = c.getString(c.getColumnIndex(
+                                TransactionsContract.TransactionEntry._ID));
+                    }
+                    cnt++;
                 }
-                cnt++;
             }
-        }
 
-        // now delete it
-        query = "DELETE FROM "+ TransactionsContract.TransactionEntry.TABLE_NAME +
-                " WHERE _id = "+idholder+"";
-        database.execSQL(query);
-        database.close();
+            // now delete it
+            query = "DELETE FROM " + TransactionsContract.TransactionEntry.TABLE_NAME +
+                    " WHERE _id = " + idholder + "";
+            database.execSQL(query);
+            //database.close();
+        }
+        catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
     }
 
     public void UpdateTutorial(Context context, boolean Enable)
     {
-        // Gets the data repository in write mode
-        SQLiteDatabase db = new TransactionDbHelper(context).getWritableDatabase();
+        try {
+            // Gets the data repository in write mode
+            SQLiteDatabase db = new TransactionDbHelper(context).getWritableDatabase();
 
-        // remove all previous entries
-        String query = "DELETE FROM " + TransactionsContract.Current.TABLE_NAME +
-                " WHERE _id=2";
-        db.execSQL(query);
+            // remove all previous entries
+            String query = "DELETE FROM " + TransactionsContract.Current.TABLE_NAME +
+                    " WHERE _id=2";
+            db.execSQL(query);
 
-        // now add the new value in
-        String val = Boolean.toString(Enable);
-        ContentValues values = new ContentValues();
-        values.put(TransactionsContract.Current._ID, 1);
-        values.put(TransactionsContract.Current.COLUMN_VALUE, val);
-        db.replace(TransactionsContract.Current.TABLE_NAME,
-                null, values);
-        db.close();
+            // now add the new value in
+            String val = Boolean.toString(Enable);
+            ContentValues values = new ContentValues();
+            values.put(TransactionsContract.Current._ID, 1);
+            values.put(TransactionsContract.Current.COLUMN_VALUE, val);
+            db.replace(TransactionsContract.Current.TABLE_NAME,
+                    null, values);
+            //db.close();
+        }
+        catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
     }
 
     public boolean GetTutorialEnabled(Context context)
@@ -140,7 +156,7 @@ public class TransactionDbHelper extends SQLiteOpenHelper {
                     }
                 }
             }
-            database.close();
+            //database.close();
         }
         catch (Exception e) { Log.v(TAG, e.toString());}
         return first;
@@ -148,21 +164,26 @@ public class TransactionDbHelper extends SQLiteOpenHelper {
 
     public void UpdateBank(Context context, String balance)
     {
-        // Gets the data repository in write mode
-        SQLiteDatabase db = new TransactionDbHelper(context).getWritableDatabase();
+        try {
+            // Gets the data repository in write mode
+            SQLiteDatabase db = new TransactionDbHelper(context).getWritableDatabase();
 
-        // remove all previous entries
-        String query = "DELETE FROM " + TransactionsContract.Current.TABLE_NAME +
-                " WHERE _id=1";
-        db.execSQL(query);
+            // remove all previous entries
+            String query = "DELETE FROM " + TransactionsContract.Current.TABLE_NAME +
+                    " WHERE _id=1";
+            db.execSQL(query);
 
-        // now add the new value in
-        ContentValues values = new ContentValues();
-        values.put(TransactionsContract.Current._ID, 1);
-        values.put(TransactionsContract.Current.COLUMN_VALUE, balance);
-        db.replace(TransactionsContract.Current.TABLE_NAME,
-                null, values);
-        db.close();
+            // now add the new value in
+            ContentValues values = new ContentValues();
+            values.put(TransactionsContract.Current._ID, 1);
+            values.put(TransactionsContract.Current.COLUMN_VALUE, balance);
+            db.replace(TransactionsContract.Current.TABLE_NAME,
+                    null, values);
+            //db.close();
+        }
+        catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
     }
 
     public float GetBankBalance(Context context)
@@ -187,7 +208,7 @@ public class TransactionDbHelper extends SQLiteOpenHelper {
                     }
                 }
             }
-            database.close();
+            //database.close();
         }
         catch (Exception e) { Log.v(TAG, e.toString());}
         return first;
@@ -195,36 +216,41 @@ public class TransactionDbHelper extends SQLiteOpenHelper {
 
     public void ClearTransaction(Context context, int pos, boolean cleared)
     {
-        SQLiteDatabase database = new TransactionDbHelper(context).getWritableDatabase();
-        String idholder = "";
+        try {
+            SQLiteDatabase database = new TransactionDbHelper(context).getWritableDatabase();
+            String idholder = "";
 
-        // get the ID number
-        int cnt = 0;
+            // get the ID number
+            int cnt = 0;
 
-        String query = "SELECT * FROM " + TransactionsContract.TransactionEntry.TABLE_NAME;
-        Cursor c = database.rawQuery(query, null);
-        if (c != null) {
-            while (c.moveToNext()) {
-                if (cnt == pos) {
-                    idholder = c.getString(c.getColumnIndex(
-                            TransactionsContract.TransactionEntry._ID));
+            String query = "SELECT * FROM " + TransactionsContract.TransactionEntry.TABLE_NAME;
+            Cursor c = database.rawQuery(query, null);
+            if (c != null) {
+                while (c.moveToNext()) {
+                    if (cnt == pos) {
+                        idholder = c.getString(c.getColumnIndex(
+                                TransactionsContract.TransactionEntry._ID));
+                    }
+                    cnt++;
                 }
-                cnt++;
             }
+
+            // decide to set high or low
+            String clearVal = "0";
+            if (cleared) clearVal = "1";
+
+            // update query
+            query = "UPDATE " + TransactionsContract.TransactionEntry.TABLE_NAME +
+                    " SET " + TransactionsContract.TransactionEntry.HAS_CLEARED + " = " + clearVal +
+                    " WHERE " + TransactionsContract.TransactionEntry._ID +
+                    " = " + idholder;
+
+            // now run the query
+            database.execSQL(query);
+            //database.close();
         }
-
-        // decide to set high or low
-        String clearVal = "0";
-        if (cleared) clearVal = "1";
-
-        // update query
-        query = "UPDATE " + TransactionsContract.TransactionEntry.TABLE_NAME +
-                " SET " + TransactionsContract.TransactionEntry.HAS_CLEARED + " = " + clearVal +
-                " WHERE " + TransactionsContract.TransactionEntry._ID +
-                " = " + idholder;
-
-        // now run the query
-        database.execSQL(query);
-        database.close();
+        catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
     }
 }

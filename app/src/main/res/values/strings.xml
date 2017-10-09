@@ -20,8 +20,8 @@
         have already cleared. In the next step you can review all of them and change which
         transactions have cleared. This process can be completed once in most cases since the
         transactions will be saved (only on the device).</string>
-    <string name="name1">Name for the transaction:</string>
-    <string name="value1">Value for the  transaction:</string>
+    <string name="name1">Name:</string>
+    <string name="value1">Value:</string>
     <string name="cleared1">This transaction has cleared</string>
     <string name="btnAdd">Add this transaction</string>
     <string name="end1">Once you have completed entering all your transactions click the next icon (>).</string>
