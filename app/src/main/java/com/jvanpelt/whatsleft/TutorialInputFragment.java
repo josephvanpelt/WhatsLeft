@@ -77,7 +77,7 @@ public class TutorialInputFragment extends Fragment {
             Button disable = (Button) view.findViewById(R.id.btnDisable);
             disable.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    dbHelper.UpdateTutorial(view.getContext(), false);
+                    dbHelper.UpdateTutorial(false);
                     Toast.makeText(view.getContext(), "Tutorial Disabled",
                             Toast.LENGTH_LONG).show();
                 }

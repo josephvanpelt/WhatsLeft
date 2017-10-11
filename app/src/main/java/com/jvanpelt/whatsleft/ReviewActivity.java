@@ -1,18 +1,7 @@
 package com.jvanpelt.whatsleft;
 
-import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.IntRange;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.internal.BottomNavigationMenu;
-import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
@@ -24,9 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.GridView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -89,7 +76,7 @@ public class ReviewActivity extends Fragment {
                 }
             });
 
-            transList = dbHelper.getAllTrans(this.getContext());
+            transList = dbHelper.getAllTrans();
             adapter = new AdapterTrans(this.getContext(), transList);
             gv.setAdapter(adapter);
 
@@ -117,11 +104,11 @@ public class ReviewActivity extends Fragment {
 
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     // perform the delete
-                                    dbHelper.DeleteTransaction(gview.getContext(), gPosition);
+                                    dbHelper.DeleteTransaction(gPosition);
 
                                     // update the elements in the adapter
                                     adapter.clearAdapter();
-                                    transList = dbHelper.getAllTrans(gview.getContext());
+                                    transList = dbHelper.getAllTrans();
                                     adapter.addNewValues(transList);
                                     // notify for re-draw
                                     adapter.notifyDataSetChanged();
@@ -135,10 +122,10 @@ public class ReviewActivity extends Fragment {
 
             mark_clear.setOnClickListener(new View.OnClickListener(){
                   public void onClick(View v) {
-                      dbHelper.ClearTransaction(gview.getContext(), gPosition, true);
+                      dbHelper.ClearTransaction(gPosition, true);
                       // update the elements in the adapter
                       adapter.clearAdapter();
-                      transList = dbHelper.getAllTrans(gview.getContext());
+                      transList = dbHelper.getAllTrans();
                       adapter.addNewValues(transList);
                       // notify for re-draw
                       adapter.notifyDataSetChanged();
@@ -148,10 +135,10 @@ public class ReviewActivity extends Fragment {
 
             mark_un.setOnClickListener(new View.OnClickListener(){
                 public void onClick(View v) {
-                    dbHelper.ClearTransaction(gview.getContext(), gPosition, false);
+                    dbHelper.ClearTransaction(gPosition, false);
                     // update the elements in the adapter
                     adapter.clearAdapter();
-                    transList = dbHelper.getAllTrans(gview.getContext());
+                    transList = dbHelper.getAllTrans();
                     adapter.addNewValues(transList);
                     // notify for re-draw
                     adapter.notifyDataSetChanged();
@@ -237,6 +224,18 @@ public class ReviewActivity extends Fragment {
         }
 
         return gview;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        //dbHelper.close();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        //dbHelper.close();
     }
 
 }

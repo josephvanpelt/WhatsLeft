@@ -1,14 +1,6 @@
 package com.jvanpelt.whatsleft;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.IntRange;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -68,35 +60,12 @@ public class WhatsLeftActivity extends Fragment {
             String msgSum = "Initial Balance: $";
 
             // read in the values from the database
-            float first = 0;
-            SQLiteDatabase database = new TransactionDbHelper(this.getContext()).getReadableDatabase();
-            String query = "SELECT * FROM " + TransactionsContract.Current.TABLE_NAME + " WHERE " +
-                    "_id=1";
-            Cursor c = database.rawQuery(query, null);
-            if (c != null) {
-                while (c.moveToNext()) {
-                    String val = c.getString(c.getColumnIndex(
-                            TransactionsContract.Current.COLUMN_VALUE));
-                    if (val != "")
-                    {
-                        Log.v("DBHelper: ", "val: " + val);
-                        try {
-                            first = Float.parseFloat(val);
-                        }
-                        catch (Exception e) {}
+            float first = dbHelper.GetBankBalance();
+            msgSum += first + "\n\n" +
+                    "Transactions to account for:\n" +
+                    "\n";
 
-                        msgSum += first + "\n\n" +
-                                "Transactions to account for:\n" +
-                                "\n";
-
-                    }
-                }
-            }
-            database.close();
-
-            Log.v(TAG, "database closed");
-
-            transList = dbHelper.getAllTrans(this.getContext());
+            transList = dbHelper.getAllTrans();
             for (ModelTrans m : transList) {
                 float v = m.getValue();
                 if(!m.getCleared())  // if not cleared then count it
@@ -178,5 +147,17 @@ public class WhatsLeftActivity extends Fragment {
         }
 
         return view;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        dbHelper.close();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        dbHelper.close();
     }
 }

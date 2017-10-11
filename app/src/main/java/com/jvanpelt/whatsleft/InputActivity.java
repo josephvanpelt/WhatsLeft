@@ -1,11 +1,7 @@
 package com.jvanpelt.whatsleft;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -69,7 +65,7 @@ public class InputActivity extends Fragment {
                         // ignore blank string
                         if (val.equals("")) return;
                         // save the balance
-                        dbHelper.UpdateBank(view.getContext(), val);
+                        dbHelper.UpdateBank(val);
                         // update the summary on screen
                         updateBalance();
                         Log.i(TAG, "Balance change");
@@ -163,11 +159,23 @@ public class InputActivity extends Fragment {
         return view;
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        //dbHelper.close();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        //dbHelper.close();
+    }
+
     public void updateBalance()
     {
-        float prevval = dbHelper.GetBankBalance(view.getContext());
-        String msg = "Current: $" + prevval;
-        prev.setText(msg);
+        float prevval = dbHelper.GetBankBalance();
+        String cl = "Current: $" + String.format("%.2f",prevval);
+        prev.setText(cl);
     }
 
 }

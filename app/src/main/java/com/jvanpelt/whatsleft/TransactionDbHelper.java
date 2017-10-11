@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -15,32 +16,97 @@ import java.util.ArrayList;
 
 public class TransactionDbHelper extends SQLiteOpenHelper {
     private String TAG = "TransactionDbHelper";
+    private static TransactionDbHelper mInstance = null;
+
     // If you change the database schema, you must increment the database version.
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "Transactions.db";
+    private SQLiteDatabase database;
+    private Context savedContext = null;
 
+    // make this private so we don't accidentally leak - use get instance instead
     public TransactionDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        savedContext = context;
+        //getInstance(context);
     }
+
+    public static TransactionDbHelper getInstance(Context ctx) {
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        // See this article for more information: http://bit.ly/6LRzfx
+        if (mInstance == null) {
+            mInstance = new TransactionDbHelper(ctx.getApplicationContext());
+        }
+        return mInstance;
+    }
+
+    private SQLiteDatabase getDBRead() {
+        try {
+            if (database == null) {
+                database = new TransactionDbHelper(savedContext).getReadableDatabase();
+            }
+            return database;
+        }
+        catch (Exception e) {
+            Log.e(TAG, e.toString());
+            return null;
+        }
+    }
+
+    private SQLiteDatabase getDBWrite() {
+        try {
+            if (database == null) {
+                database = new TransactionDbHelper(savedContext).getWritableDatabase();
+            }
+            return database;
+        }
+        catch (Exception e) {
+            Log.e(TAG, e.toString());
+            return null;
+        }
+    }
+
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(TransactionsContract.TransactionEntry.SQL_CREATE_ENTRIES);
-        db.execSQL(TransactionsContract.Current.SQL_CREATE_ENTRIES);
+        try {
+            db.execSQL(TransactionsContract.TransactionEntry.SQL_CREATE_ENTRIES);
+            db.execSQL(TransactionsContract.Current.SQL_CREATE_ENTRIES);
+        }
+        catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
     }
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // not caching online data - so the below will not work
-        //db.execSQL(TransactionsContract.TransactionEntry.SQL_DELETE_ENTRIES);
-        //onCreate(db);
-        // will need to Add ALTER commands etc.
+        try {
+            // not caching online data - so the below will not work
+            //db.execSQL(TransactionsContract.TransactionEntry.SQL_DELETE_ENTRIES);
+            //onCreate(db);
+            // will need to Add ALTER commands etc.
+        }
+        catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
     }
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public ArrayList<ModelTrans> getAllTrans(Context context) {
+    private void closeDB() {
         try {
+            if (database != null) database.close();
+            database = null;
+        }
+        catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
+    }
+
+    public ArrayList<ModelTrans> getAllTrans() {
+        try {
+            SQLiteDatabase database = getDBRead();
             String query = "SELECT * FROM " + TransactionsContract.TransactionEntry.TABLE_NAME;
             ArrayList<ModelTrans> transactions = new ArrayList<>();
-            SQLiteDatabase database = new TransactionDbHelper(context).getReadableDatabase();
+
             Cursor c = database.rawQuery(query, null);
             if (c != null) {
                 while (c.moveToNext()) {
@@ -69,19 +135,22 @@ public class TransactionDbHelper extends SQLiteOpenHelper {
                     transactions.add(t);
                 }
             }
-            //database.close();
+            c.close();
             return transactions;
         }
         catch (Exception e) {
             Log.e(TAG, e.toString());
             return null;
         }
+        finally {
+            closeDB();
+        }
     }
 
-    public void DeleteTransaction(Context context, int pos)
+    public void DeleteTransaction(int pos)
     {
         try {
-            SQLiteDatabase database = new TransactionDbHelper(context).getWritableDatabase();
+            SQLiteDatabase database = getDBWrite();
             String idholder = "";
 
             // get the ID number
@@ -97,49 +166,53 @@ public class TransactionDbHelper extends SQLiteOpenHelper {
                     cnt++;
                 }
             }
-
+            c.close();
             // now delete it
             query = "DELETE FROM " + TransactionsContract.TransactionEntry.TABLE_NAME +
                     " WHERE _id = " + idholder + "";
             database.execSQL(query);
-            //database.close();
         }
         catch (Exception e) {
             Log.e(TAG, e.toString());
         }
+        finally {
+            closeDB();
+        }
     }
 
-    public void UpdateTutorial(Context context, boolean Enable)
+    public void UpdateTutorial(boolean Enable)
     {
         try {
             // Gets the data repository in write mode
-            SQLiteDatabase db = new TransactionDbHelper(context).getWritableDatabase();
+            SQLiteDatabase database = getDBWrite();
 
             // remove all previous entries
             String query = "DELETE FROM " + TransactionsContract.Current.TABLE_NAME +
                     " WHERE _id=2";
-            db.execSQL(query);
+            database.execSQL(query);
 
             // now add the new value in
             String val = Boolean.toString(Enable);
             ContentValues values = new ContentValues();
             values.put(TransactionsContract.Current._ID, 1);
             values.put(TransactionsContract.Current.COLUMN_VALUE, val);
-            db.replace(TransactionsContract.Current.TABLE_NAME,
+            database.replace(TransactionsContract.Current.TABLE_NAME,
                     null, values);
-            //db.close();
         }
         catch (Exception e) {
             Log.e(TAG, e.toString());
         }
+        finally {
+            closeDB();
+        }
     }
 
-    public boolean GetTutorialEnabled(Context context)
+    public boolean GetTutorialEnabled()
     {
         // read in the values from the database
         boolean first = true;
         try {
-            SQLiteDatabase database = new TransactionDbHelper(context).getReadableDatabase();
+            SQLiteDatabase database = getDBRead();
             String query = "SELECT * FROM " + TransactionsContract.Current.TABLE_NAME + " WHERE " +
                     "_id=2";
             Cursor c = database.rawQuery(query, null);
@@ -156,42 +229,47 @@ public class TransactionDbHelper extends SQLiteOpenHelper {
                     }
                 }
             }
-            //database.close();
+            c.close();
         }
         catch (Exception e) { Log.v(TAG, e.toString());}
+        finally {
+            closeDB();
+        }
         return first;
     }
 
-    public void UpdateBank(Context context, String balance)
+    public void UpdateBank(String balance)
     {
         try {
             // Gets the data repository in write mode
-            SQLiteDatabase db = new TransactionDbHelper(context).getWritableDatabase();
+            SQLiteDatabase db = getDBWrite();
 
             // remove all previous entries
             String query = "DELETE FROM " + TransactionsContract.Current.TABLE_NAME +
                     " WHERE _id=1";
-            db.execSQL(query);
+            database.execSQL(query);
 
             // now add the new value in
             ContentValues values = new ContentValues();
             values.put(TransactionsContract.Current._ID, 1);
             values.put(TransactionsContract.Current.COLUMN_VALUE, balance);
-            db.replace(TransactionsContract.Current.TABLE_NAME,
+            database.replace(TransactionsContract.Current.TABLE_NAME,
                     null, values);
-            //db.close();
         }
         catch (Exception e) {
             Log.e(TAG, e.toString());
         }
+        finally {
+            closeDB();
+        }
     }
 
-    public float GetBankBalance(Context context)
+    public float GetBankBalance()
     {
         // read in the values from the database
         float first = 0;
         try {
-            SQLiteDatabase database = new TransactionDbHelper(context).getReadableDatabase();
+            SQLiteDatabase database = getDBRead();
             String query = "SELECT * FROM " + TransactionsContract.Current.TABLE_NAME + " WHERE " +
                     "_id=1";
             Cursor c = database.rawQuery(query, null);
@@ -208,16 +286,19 @@ public class TransactionDbHelper extends SQLiteOpenHelper {
                     }
                 }
             }
-            //database.close();
+            c.close();
         }
         catch (Exception e) { Log.v(TAG, e.toString());}
+        finally {
+            closeDB();
+        }
         return first;
     }
 
-    public void ClearTransaction(Context context, int pos, boolean cleared)
+    public void ClearTransaction(int pos, boolean cleared)
     {
         try {
-            SQLiteDatabase database = new TransactionDbHelper(context).getWritableDatabase();
+            SQLiteDatabase database = getDBWrite();
             String idholder = "";
 
             // get the ID number
@@ -234,6 +315,7 @@ public class TransactionDbHelper extends SQLiteOpenHelper {
                     cnt++;
                 }
             }
+            c.close();
 
             // decide to set high or low
             String clearVal = "0";
@@ -247,10 +329,38 @@ public class TransactionDbHelper extends SQLiteOpenHelper {
 
             // now run the query
             database.execSQL(query);
-            //database.close();
         }
         catch (Exception e) {
             Log.e(TAG, e.toString());
         }
+        finally {
+            closeDB();
+        }
     }
+
+    public boolean SaveToDB(String title, String value, long hasCleared)
+    {
+        try {
+            // Gets the data repository in write mode
+            SQLiteDatabase db = getDBWrite();
+
+            // Create a new map of values, where column names are the keys
+            ContentValues values = new ContentValues();
+            values.put(TransactionsContract.TransactionEntry.COLUMN_NAME, title);
+            values.put(TransactionsContract.TransactionEntry.VALUE, value);
+            values.put(TransactionsContract.TransactionEntry.HAS_CLEARED, hasCleared);
+
+            // Insert the new row, returning the primary key value of the new row
+            long newRowId = db.insert(TransactionsContract.TransactionEntry.TABLE_NAME,
+                    null, values);
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, "Error", e);
+            return false;
+        }
+    }
+
 }

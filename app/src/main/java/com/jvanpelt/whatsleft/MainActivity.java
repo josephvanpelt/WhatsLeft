@@ -58,10 +58,21 @@ public class MainActivity extends AppCompatActivity
         if (prefs.getBoolean("firstrun", true)) {
             // Do first run stuff here then set 'firstrun' as false
             TransactionDbHelper dbHelper = new TransactionDbHelper(this);
-            dbHelper.UpdateTutorial(this, true); // enable the tutorial
+            dbHelper.UpdateTutorial(true); // enable the tutorial
             prefs.edit().putBoolean("firstrun", false).commit();
         }
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {

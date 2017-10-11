@@ -1,13 +1,10 @@
 package com.jvanpelt.whatsleft;
 
-import android.content.ContentValues;
 import android.content.DialogInterface;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -152,6 +149,18 @@ public class EditActivity extends Fragment {
         return view;
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        //dbHelper.close();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        //dbHelper.close();
+    }
+
     public void onBtnAddClicked(View v){
         // get the values
         gName = name.getText().toString();
@@ -202,12 +211,15 @@ public class EditActivity extends Fragment {
     public void saveTrans()
     {
         // pass the value to the Database
-        if (SaveToDB(gName, gValue, gCleared))
+        if (dbHelper.SaveToDB(gName, gValue, gCleared))
         {
             // reset the values
             name.setText("");
             value.setText("");
             clear.setChecked(false);
+            String msg = "The transaction was added.\n" +
+                    "Add more or proceed to the next step";
+            Toast.makeText(this.getContext(), msg, Toast.LENGTH_LONG).show();
         }
         else
         {
@@ -215,32 +227,6 @@ public class EditActivity extends Fragment {
         }
     }
 
-    public boolean SaveToDB(String title, String value, long hasCleared)
-    {
-        try {
-            // Gets the data repository in write mode
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-            // Create a new map of values, where column names are the keys
-            ContentValues values = new ContentValues();
-            values.put(TransactionsContract.TransactionEntry.COLUMN_NAME, title);
-            values.put(TransactionsContract.TransactionEntry.VALUE, value);
-            values.put(TransactionsContract.TransactionEntry.HAS_CLEARED, hasCleared);
-
-            // Insert the new row, returning the primary key value of the new row
-            long newRowId = db.insert(TransactionsContract.TransactionEntry.TABLE_NAME,
-                    null, values);
-            String msg = "The transaction was added.\n" +
-                    "Add more or proceed to the next step";
-            Toast.makeText(this.getContext(), msg, Toast.LENGTH_LONG).show();
-
-            return true;
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, "Error", e);
-            return false;
-        }
-    }
 
 }
