@@ -32,6 +32,8 @@
     <string name="btnRemove">Delete</string>
     <string name="btnClear">Mark Cleared</string>
     <string name="btnUnClear">Mark Uncleared</string>
+    <string name="btnEditName">Change Name</string>
+    <string name="btnEditValue">Change Amount</string>
 
     <string name="desc4">Below is the calculated balance based on the transactions that have not
         cleared yet.</string>

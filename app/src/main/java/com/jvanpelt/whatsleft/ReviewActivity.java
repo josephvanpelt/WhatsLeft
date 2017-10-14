@@ -2,9 +2,11 @@ package com.jvanpelt.whatsleft;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.renderscript.ScriptGroup;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.text.InputType;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -13,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.Toast;
 
@@ -32,12 +35,15 @@ public class ReviewActivity extends Fragment {
     private Button mark_clear;
     private Button mark_un;
     private Button next;
+    private Button edtName;
+    private Button edtValue;
     private GridView gv;
     private AdapterTrans adapter;
     private View gview;
-    ArrayList<ModelTrans> transList = new ArrayList<>();
+    private ArrayList<ModelTrans> transList = new ArrayList<>();
     private int gPosition = 0;
     private MainActivity main;
+    private EditText edtInput;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -45,6 +51,7 @@ public class ReviewActivity extends Fragment {
         gview = inflater.inflate(R.layout.activity_review, container, false);
 
         try {
+
             main = (MainActivity) this.getActivity();
             //Toast.makeText(gview.getContext(), "position: " + main.currentView, Toast.LENGTH_LONG).show();
 
@@ -55,6 +62,8 @@ public class ReviewActivity extends Fragment {
             mark_un = (Button) gview.findViewById(R.id.btnMarkUnClear);
             gv = (GridView) gview.findViewById(R.id.gvTrans);
             next = (Button) gview.findViewById(R.id.btnNextReview);
+            edtName = (Button) gview.findViewById(R.id.btnEditName);
+            edtValue = (Button) gview.findViewById(R.id.btnEditValue);
 
             Button prev = (Button) gview.findViewById(R.id.btnPrev);
             // tie the buttons to functions
@@ -162,6 +171,82 @@ public class ReviewActivity extends Fragment {
                     catch (Exception e) {
                         Log.e(TAG, "Error", e);
                     }
+                }
+            });
+
+            edtName.setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v) {
+                    // make a dialog for the editing
+                    edtInput = new EditText(gview.getContext());
+                    ModelTrans md = transList.get(gPosition);
+                    String msg = "Enter the new Name:\n" + md.getName() +
+                            " (" + md.getValue() + ")";
+                    // confirm before delete the transaction selected
+                    new AlertDialog.Builder(gview.getContext())
+                            .setTitle("Change name")
+                            .setMessage(msg)
+                            .setIcon(android.R.drawable.ic_menu_edit)
+                            // Set an EditText view to get user input
+                            .setView(edtInput)
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    String value = edtInput.getText().toString();
+                                    dbHelper.ChangeName(gPosition, value);
+
+                                    // update the elements in the adapter
+                                    adapter.clearAdapter();
+                                    transList = dbHelper.getAllTrans();
+                                    adapter.addNewValues(transList);
+                                    // notify for re-draw
+                                    adapter.notifyDataSetChanged();
+                                    gv.invalidateViews();
+
+                                    Toast.makeText(gview.getContext(), "Name Updated", Toast.LENGTH_SHORT).show();
+                                }})
+                            .setNegativeButton(android.R.string.cancel, null).show();
+                }
+            });
+
+
+            edtValue.setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v) {
+                    // make a dialog for the editing
+                    edtInput = new EditText(gview.getContext());
+                    // make this a number input only
+                    edtInput.setRawInputType(InputType.TYPE_CLASS_NUMBER |
+                            InputType.TYPE_NUMBER_FLAG_DECIMAL |
+                            InputType.TYPE_NUMBER_FLAG_SIGNED);
+
+                    ModelTrans md = transList.get(gPosition);
+                    String msg = "Enter the new Value:\n" + md.getName() +
+                            " (" + md.getValue() + ")";
+
+                    // confirm before delete the transaction selected
+                    new AlertDialog.Builder(gview.getContext())
+                            .setTitle("Change Value")
+                            .setMessage(msg)
+                            .setIcon(android.R.drawable.ic_menu_edit)
+                            // Set an EditText view to get user input
+                            .setView(edtInput)
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    String value = edtInput.getText().toString();
+                                    // perform the delete
+                                    dbHelper.ChangeValue(gPosition, value);
+
+                                    // update the elements in the adapter
+                                    adapter.clearAdapter();
+                                    transList = dbHelper.getAllTrans();
+                                    adapter.addNewValues(transList);
+                                    // notify for re-draw
+                                    adapter.notifyDataSetChanged();
+                                    gv.invalidateViews();
+
+                                    Toast.makeText(gview.getContext(), "Value Edited", Toast.LENGTH_SHORT).show();
+                                }})
+                            .setNegativeButton(android.R.string.cancel, null).show();
                 }
             });
 

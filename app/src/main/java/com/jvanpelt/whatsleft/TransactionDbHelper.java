@@ -16,11 +16,11 @@ import java.util.ArrayList;
 
 public class TransactionDbHelper extends SQLiteOpenHelper {
     private String TAG = "TransactionDbHelper";
-    private static TransactionDbHelper mInstance = null;
+    //private static TransactionDbHelper mInstance = null;
 
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "Transactions.db";
+    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "Transactions.db";
     private SQLiteDatabase database;
     private Context savedContext = null;
 
@@ -31,6 +31,7 @@ public class TransactionDbHelper extends SQLiteOpenHelper {
         //getInstance(context);
     }
 
+    /*
     public static TransactionDbHelper getInstance(Context ctx) {
         // Use the application context, which will ensure that you
         // don't accidentally leak an Activity's context.
@@ -40,6 +41,7 @@ public class TransactionDbHelper extends SQLiteOpenHelper {
         }
         return mInstance;
     }
+    */
 
     private SQLiteDatabase getDBRead() {
         try {
@@ -360,6 +362,77 @@ public class TransactionDbHelper extends SQLiteOpenHelper {
         {
             Log.e(TAG, "Error", e);
             return false;
+        }
+    }
+
+    public void ChangeName(int pos, String val)
+    {
+        try {
+            SQLiteDatabase database = getDBWrite();
+            String idholder = "";
+
+            // get the ID number
+            int cnt = 0;
+            String query = "SELECT * FROM " + TransactionsContract.TransactionEntry.TABLE_NAME;
+            Cursor c = database.rawQuery(query, null);
+            if (c != null) {
+                while (c.moveToNext()) {
+                    if (cnt == pos) {
+                        idholder = c.getString(c.getColumnIndex(
+                                TransactionsContract.TransactionEntry._ID));
+                    }
+                    cnt++;
+                }
+            }
+            c.close();
+            // now delete it
+            query = "UPDATE " + TransactionsContract.TransactionEntry.TABLE_NAME +
+                    " SET " + TransactionsContract.TransactionEntry.COLUMN_NAME +
+                    " = '" + val + "'" +
+                    " WHERE " + TransactionsContract.TransactionEntry._ID +
+                    " = " + idholder;
+            database.execSQL(query);
+        }
+        catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
+        finally {
+            closeDB();
+        }
+    }
+
+    public void ChangeValue(int pos, String val)
+    {
+        try {
+            SQLiteDatabase database = getDBWrite();
+            String idholder = "";
+
+            // get the ID number
+            int cnt = 0;
+            String query = "SELECT * FROM " + TransactionsContract.TransactionEntry.TABLE_NAME;
+            Cursor c = database.rawQuery(query, null);
+            if (c != null) {
+                while (c.moveToNext()) {
+                    if (cnt == pos) {
+                        idholder = c.getString(c.getColumnIndex(
+                                TransactionsContract.TransactionEntry._ID));
+                    }
+                    cnt++;
+                }
+            }
+            c.close();
+            // now delete it
+            query = "UPDATE " + TransactionsContract.TransactionEntry.TABLE_NAME +
+                    " SET " + TransactionsContract.TransactionEntry.VALUE + " = " + val +
+                    " WHERE " + TransactionsContract.TransactionEntry._ID +
+                    " = " + idholder;
+            database.execSQL(query);
+        }
+        catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
+        finally {
+            closeDB();
         }
     }
 
